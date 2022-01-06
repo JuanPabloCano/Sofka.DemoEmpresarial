@@ -15,6 +15,7 @@ import java.util.function.Function;
 @Service
 @Validated
 public class GetUseCase implements Function<String, Mono<QuestionDTO>> {
+
     private final QuestionRepository questionRepository;
     private final AnswerRepository answerRepository;
     private final MapperUtils mapperUtils;

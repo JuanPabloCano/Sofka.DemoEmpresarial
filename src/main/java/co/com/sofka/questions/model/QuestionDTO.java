@@ -2,7 +2,6 @@ package co.com.sofka.questions.model;
 
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
