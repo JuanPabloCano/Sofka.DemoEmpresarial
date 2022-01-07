@@ -2,6 +2,7 @@ package co.com.sofka.questions.routers;
 
 import co.com.sofka.questions.model.AnswerDTO;
 import co.com.sofka.questions.model.QuestionDTO;
+import co.com.sofka.questions.model.RateDTO;
 import co.com.sofka.questions.useCases.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -43,7 +44,7 @@ public class QuestionRouter {
 
     @Bean
     public RouterFunction<ServerResponse> create(CreateUseCase createUseCase) {
-        Function<QuestionDTO, Mono<ServerResponse>> executor = questionDTO ->  createUseCase.apply(questionDTO)
+        Function<QuestionDTO, Mono<ServerResponse>> executor = questionDTO -> createUseCase.apply(questionDTO)
                 .flatMap(result -> ServerResponse.ok()
                         .contentType(MediaType.TEXT_PLAIN)
                         .bodyValue(result));
@@ -92,7 +93,7 @@ public class QuestionRouter {
     @Bean
     public RouterFunction<ServerResponse> update(UpdateUseCase updateUseCase) {
         Function<QuestionDTO, Mono<ServerResponse>> executor = questionDTO -> updateUseCase.apply(questionDTO)
-                .flatMap(result-> ServerResponse.ok()
+                .flatMap(result -> ServerResponse.ok()
                         .contentType(MediaType.TEXT_PLAIN)
                         .bodyValue(result));
 
@@ -100,6 +101,27 @@ public class QuestionRouter {
                 PUT("/update").and(accept(MediaType.APPLICATION_JSON)),
                 request -> request.bodyToMono(QuestionDTO.class).flatMap(executor)
         );
-
     }
+
+    @Bean
+    public RouterFunction<ServerResponse> findByCategory(FindAllByCategoryUseCase findAllByCategoryUseCase) {
+        return route(
+                GET("/filterCategory/{category}").and(accept(MediaType.APPLICATION_JSON)),
+                request -> ServerResponse.ok()
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(BodyInserters.fromPublisher(findAllByCategoryUseCase.apply(request.pathVariable("category")), QuestionDTO.class))
+        );
+    }
+    @Bean
+    public RouterFunction<ServerResponse> addRate(AddRateUseCase addRateUseCase) {
+        return route(POST("/addRate").and(accept(MediaType.APPLICATION_JSON)),
+                request -> request.bodyToMono(RateDTO.class)
+                        .flatMap(addRateDTO -> addRateUseCase.apply(addRateDTO)
+                                .flatMap(result -> ServerResponse.ok()
+                                        .contentType(MediaType.APPLICATION_JSON)
+                                        .bodyValue(result))
+                        )
+        );
+    }
+
 }
